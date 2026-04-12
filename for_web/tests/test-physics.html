@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物理参数测试 - 跑酷游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-group {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .control-group .value {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        
+        .canvas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        canvas {
+            background: #000;
+            border-radius: 8px;
+            width: 100%;
+            height: 300px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        
+        .stat-card .unit {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, #666, #444);
+        }
+        
+        .info-box {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .info-box h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #ccc;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .recommendation {
+            background: rgba(0, 255, 100, 0.1);
+            border-left: 4px solid #00ff64;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .recommendation.good {
+            border-left-color: #00ff64;
+            background: rgba(0, 255, 100, 0.1);
+        }
+        
+        .recommendation.warning {
+            border-left-color: #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+        }
+        
+        .recommendation.bad {
+            border-left-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏃 跑酷游戏物理参数测试工具</h1>
+        
+        <div class="panel">
+            <h2>⚙️ 参数调节</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>初始速度 (INITIAL_SPEED): <span class="value" id="val-initial-speed">3</span></label>
+                    <input type="range" id="initial-speed" min="1" max="8" step="0.5" value="3">
+                </div>
+                <div class="control-group">
+                    <label>最大速度 (MAX_SPEED): <span class="value" id="val-max-speed">10</span></label>
+                    <input type="range" id="max-speed" min="5" max="20" step="0.5" value="10">
+                </div>
+                <div class="control-group">
+                    <label>速度增量 (SPEED_INCREMENT): <span class="value" id="val-speed-inc">0.5</span></label>
+                    <input type="range" id="speed-inc" min="0.1" max="2" step="0.1" value="0.5">
+                </div>
+                <div class="control-group">
+                    <label>重力 (GRAVITY): <span class="value" id="val-gravity">0.4</span></label>
+                    <input type="range" id="gravity" min="0.2" max="1" step="0.05" value="0.4">
+                </div>
+                <div class="control-group">
+                    <label>跳跃速度 (JUMP_VELOCITY): <span class="value" id="val-jump">-12</span></label>
+                    <input type="range" id="jump-velocity" min="-20" max="-8" step="0.5" value="-12">
+                </div>
+                <div class="control-group">
+                    <label>里程碑间隔 (米): <span class="value" id="val-milestone">500</span></label>
+                    <input type="range" id="milestone" min="100" max="2000" step="100" value="500">
+                </div>
+            </div>
+            
+            <div class="recommendation good" id="recommendation">
+                <strong>✅ 参数评估：</strong>当前参数组合良好，跳跃高度足够越过障碍物。
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>📊 实时统计</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="label">理论跳跃高度</div>
+                    <div class="value" id="stat-jump-height">180</div>
+                    <div class="unit">像素</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">跳跃持续时间</div>
+                    <div class="value" id="stat-jump-time">60</div>
+                    <div class="unit">帧 (@60fps)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">到达最大速度</div>
+                    <div class="value" id="stat-max-time">14</div>
+                    <div class="unit">个里程碑</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">速度范围</div>
+                    <div class="value" id="stat-speed-range">3-10</div>
+                    <div class="unit">像素/帧</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>📈 可视化</h2>
+            <div class="canvas-container">
+                <div>
+                    <h3 style="margin-bottom: 10px; color: #888;">跳跃轨迹模拟</h3>
+                    <canvas id="jump-canvas" width="600" height="300"></canvas>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 10px; color: #888;">速度增长曲线</h3>
+                    <canvas id="speed-canvas" width="600" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>🎮 测试场景</h2>
+            <div class="canvas-container">
+                <canvas id="game-canvas" width="800" height="400"></canvas>
+            </div>
+            <div class="actions">
+                <button onclick="startSimulation()">▶️ 开始模拟</button>
+                <button onclick="resetSimulation()" class="secondary">🔄 重置</button>
+                <button onclick="testJump()">🦘 测试跳跃</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>ℹ️ 参考信息</h2>
+            <div class="info-box">
+                <h3>游戏对象尺寸参考</h3>
+                <ul>
+                    <li>Hero 高度: ~80 像素</li>
+                    <li>障碍物高度: ~60 像素</li>
+                    <li>地面 Y 坐标: 400 像素</li>
+                    <li>游戏画面宽度: 1024 像素</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h3>跳跃通过条件</h3>
+                <ul>
+                    <li>跳跃高度 > 障碍物高度 + Hero 高度 + 安全边距</li>
+                    <li>建议跳跃高度: > 140 像素</li>
+                    <li>当前最小所需: 障碍物(60) + Hero(80) - 地面间隙(10) = 130 像素</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/utils.js"></script>
+    <script>
+        // 获取控件
+        const controls = {
+            initialSpeed: document.getElementById('initial-speed'),
+            maxSpeed: document.getElementById('max-speed'),
+            speedInc: document.getElementById('speed-inc'),
+            gravity: document.getElementById('gravity'),
+            jumpVelocity: document.getElementById('jump-velocity'),
+            milestone: document.getElementById('milestone')
+        };
+        
+        // 参数对象
+        let params = {
+            initialSpeed: 3,
+            maxSpeed: 10,
+            speedInc: 0.5,
+            gravity: 0.4,
+            jumpVelocity: -12,
+            milestone: 500
+        };
+        
+        // 绑定事件
+        Object.keys(controls).forEach(key => {
+            controls[key].addEventListener('input', (e) => {
+                params[key] = parseFloat(e.target.value);
+                updateDisplay();
+                drawJumpTrajectory();
+                drawSpeedCurve();
+            });
+        });
+        
+        function updateDisplay() {
+            document.getElementById('val-initial-speed').textContent = params.initialSpeed;
+            document.getElementById('val-max-speed').textContent = params.maxSpeed;
+            document.getElementById('val-speed-inc').textContent = params.speedInc;
+            document.getElementById('val-gravity').textContent = params.gravity.toFixed(2);
+            document.getElementById('val-jump').textContent = params.jumpVelocity;
+            document.getElementById('val-milestone').textContent = params.milestone;
+            
+            // 计算统计值
+            const jumpHeight = (params.jumpVelocity * params.jumpVelocity) / (2 * params.gravity);
+            const jumpTime = -2 * params.jumpVelocity / params.gravity;
+            const maxLevel = Math.ceil((params.maxSpeed - params.initialSpeed) / params.speedInc);
+            
+            document.getElementById('stat-jump-height').textContent = Math.round(jumpHeight);
+            document.getElementById('stat-jump-time').textContent = Math.round(jumpTime);
+            document.getElementById('stat-max-time').textContent = maxLevel;
+            document.getElementById('stat-speed-range').textContent = `${params.initialSpeed}-${params.maxSpeed}`;
+            
+            // 评估参数
+            const rec = document.getElementById('recommendation');
+            if (jumpHeight < 130) {
+                rec.className = 'recommendation bad';
+                rec.innerHTML = '<strong>❌ 参数评估：</strong>跳跃高度不足，可能无法越过障碍物！建议增加跳跃速度或降低重力。';
+            } else if (jumpHeight > 250) {
+                rec.className = 'recommendation warning';
+                rec.innerHTML = '<strong>⚠️ 参数评估：</strong>跳跃高度过高，可能导致游戏过于简单或手感飘浮。';
+            } else {
+                rec.className = 'recommendation good';
+                rec.innerHTML = '<strong>✅ 参数评估：</strong>当前参数组合良好，跳跃高度足够越过障碍物。';
+            }
+        }
+        
+        // 绘制跳跃轨迹
+        function drawJumpTrajectory() {
+            const canvas = document.getElementById('jump-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制网格
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // 绘制地面
+            const groundY = 250;
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+            
+            // 绘制障碍物参考线 (60像素高)
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.fillRect(100, groundY - 60, 80, 60);
+            ctx.strokeStyle = '#ff4444';
+            ctx.strokeRect(100, groundY - 60, 80, 60);
+            ctx.fillStyle = '#ff4444';
+            ctx.font = '12px Arial';
+            ctx.fillText('障碍物 (60px)', 105, groundY - 65);
+            
+            // 绘制Hero
+            ctx.fillStyle = '#00d4ff';
+            ctx.fillRect(50, groundY - 80, 40, 80);
+            ctx.fillStyle = '#00d4ff';
+            ctx.fillText('Hero (80px)', 45, groundY - 85);
+            
+            // 计算跳跃轨迹
+            let x = 50, y = groundY - 80;
+            let velocityY = params.jumpVelocity;
+            let velocityX = 3; // 水平速度
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.moveTo(x, y);
+            
+            const points = [];
+            while (y < groundY - 80 || velocityY < 0) {
+                x += velocityX;
+                y += velocityY;
+                velocityY += params.gravity;
+                points.push({x, y});
+                
+                if (points.length > 500) break;
+            }
+            
+            // 绘制轨迹
+            points.forEach(p => {
+                ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+            
+            // 标记最高点
+            const maxHeight = Math.min(...points.map(p => p.y));
+            ctx.fillStyle = '#00ff64';
+            ctx.beginPath();
+            ctx.arc(points.find(p => p.y === maxHeight).x, maxHeight, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#00ff64';
+            ctx.fillText(`最高点: ${Math.round(groundY - maxHeight)}px`, 
+                points.find(p => p.y === maxHeight).x + 10, maxHeight);
+        }
+        
+        // 绘制速度曲线
+        function drawSpeedCurve() {
+            const canvas = document.getElementById('speed-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制网格
+            ctx.strokeStyle = '#333';
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // 绘制速度曲线
+            const maxLevel = Math.ceil((params.maxSpeed - params.initialSpeed) / params.speedInc);
+            const xStep = canvas.width / Math.max(maxLevel, 20);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 3;
+            ctx.moveTo(0, canvas.height - params.initialSpeed * 20);
+            
+            for (let level = 0; level <= maxLevel; level++) {
+                const speed = Math.min(
+                    params.initialSpeed + level * params.speedInc,
+                    params.maxSpeed
+                );
+                const x = level * xStep;
+                const y = canvas.height - speed * 20;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // 标记最大速度
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(maxLevel * xStep - 5, canvas.height - params.maxSpeed * 20 - 5, 10, 10);
+            ctx.fillStyle = '#ff4444';
+            ctx.fillText(`MAX: ${params.maxSpeed}`, maxLevel * xStep + 10, canvas.height - params.maxSpeed * 20);
+        }
+        
+        // 游戏模拟
+        let simulationId = null;
+        let gameState = {
+            hero: { x: 50, y: 0, jumping: false, velocity: 0 },
+            obstacles: [],
+            speed: 3,
+            frame: 0
+        };
+        
+        function startSimulation() {
+            if (simulationId) return;
+            resetSimulation();
+            simulationId = requestAnimationFrame(gameLoop);
+        }
+        
+        function resetSimulation() {
+            if (simulationId) {
+                cancelAnimationFrame(simulationId);
+                simulationId = null;
+            }
+            gameState = {
+                hero: { x: 50, y: 320, jumping: false, velocity: 0 },
+                obstacles: [],
+                speed: params.initialSpeed,
+                frame: 0,
+                meters: 0
+            };
+            drawGame();
+        }
+        
+        function testJump() {
+            if (!gameState.hero.jumping) {
+                gameState.hero.jumping = true;
+                gameState.hero.velocity = params.jumpVelocity;
+            }
+        }
+        
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            simulationId = requestAnimationFrame(gameLoop);
+        }
+        
+        function updateGame() {
+            gameState.frame++;
+            
+            // 更新速度
+            const milestone = Math.floor(gameState.meters / params.milestone);
+            gameState.speed = Math.min(
+                params.initialSpeed + milestone * params.speedInc,
+                params.maxSpeed
+            );
+            
+            // 更新里程
+            if (gameState.frame % 6 === 0) {
+                gameState.meters += Math.floor(gameState.speed);
+            }
+            
+            // 更新Hero
+            if (gameState.hero.jumping) {
+                gameState.hero.y += gameState.hero.velocity;
+                gameState.hero.velocity += params.gravity;
+                
+                if (gameState.hero.y >= 320) {
+                    gameState.hero.y = 320;
+                    gameState.hero.jumping = false;
+                    gameState.hero.velocity = 0;
+                }
+            }
+            
+            // 生成障碍物
+            if (gameState.frame % 120 === 0) {
+                gameState.obstacles.push({
+                    x: 800,
+                    y: 330,
+                    width: 80,
+                    height: 60
+                });
+            }
+            
+            // 更新障碍物
+            gameState.obstacles = gameState.obstacles.filter(obs => {
+                obs.x -= gameState.speed;
+                return obs.x > -100;
+            });
+            
+            // 碰撞检测
+            gameState.obstacles.forEach(obs => {
+                if (checkCollision(
+                    {x: gameState.hero.x, y: gameState.hero.y, width: 40, height: 80},
+                    obs
+                )) {
+                    // 碰撞，重置Hero位置（测试模式不结束游戏）
+                    gameState.hero.y = 200;
+                }
+            });
+        }
+        
+        function drawGame() {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 清空
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 地面
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, 400, canvas.width, 100);
+            
+            // 绘制Hero
+            ctx.fillStyle = '#00d4ff';
+            ctx.fillRect(gameState.hero.x, gameState.hero.y, 40, 80);
+            
+            // 绘制障碍物
+            ctx.fillStyle = '#666';
+            gameState.obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                // 危险标记
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(obs.x + 10, obs.y + 10, obs.width - 20, 5);
+                ctx.fillStyle = '#666';
+            });
+            
+            // HUD
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(`速度: ${gameState.speed.toFixed(1)}`, 20, 30);
+            ctx.fillText(`里程: ${gameState.meters}m`, 20, 50);
+            ctx.fillText(`按"测试跳跃"按钮跳跃`, 20, 70);
+        }
+        
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width &&
+                   obj1.x + obj1.width > obj2.x &&
+                   obj1.y < obj2.y + obj2.height &&
+                   obj1.y + obj1.height > obj2.y;
+        }
+        
+        // 初始化
+        updateDisplay();
+        drawJumpTrajectory();
+        drawSpeedCurve();
+        resetSimulation();
+    </script>
+</body>
+</html>

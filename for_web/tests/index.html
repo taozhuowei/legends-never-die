@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跑酷游戏测试中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #00d4ff;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        .test-card h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .test-card p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .test-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .params-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .params-panel h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .param-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .param-item .label {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .param-item .value {
+            color: #00d4ff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .param-item .desc {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .status-panel {
+            background: rgba(0, 255, 100, 0.1);
+            border: 1px solid rgba(0, 255, 100, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .status-panel.error {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.3);
+        }
+        
+        .status-panel h3 {
+            color: #00ff64;
+            margin-bottom: 10px;
+        }
+        
+        .status-panel.error h3 {
+            color: #ff4444;
+        }
+        
+        .test-output {
+            background: #000;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            color: #0f0;
+        }
+        
+        .test-output .error {
+            color: #f44;
+        }
+        
+        .test-output .success {
+            color: #0f0;
+        }
+        
+        .test-output .info {
+            color: #88f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏃 跑酷游戏测试中心</h1>
+        <p class="subtitle">游戏核心功能测试与调试工具集合</p>
+        
+        <div class="params-panel">
+            <h2>⚙️ 当前游戏参数</h2>
+            <div class="params-grid" id="params-display">
+                <!-- 参数将通过JS动态加载 -->
+                <div class="param-item">
+                    <div class="label">初始速度</div>
+                    <div class="value" id="p-initial-speed">-</div>
+                    <div class="desc">游戏开始时的移动速度</div>
+                </div>
+                <div class="param-item">
+                    <div class="label">最大速度</div>
+                    <div class="value" id="p-max-speed">-</div>
+                    <div class="desc">速度上限</div>
+                </div>
+                <div class="param-item">
+                    <div class="label">重力</div>
+                    <div class="value" id="p-gravity">-</div>
+                    <div class="desc">影响跳跃下落速度</div>
+                </div>
+                <div class="param-item">
+                    <div class="label">跳跃速度</div>
+                    <div class="value" id="p-jump">-</div>
+                    <div class="desc">起跳初速度</div>
+                </div>
+                <div class="param-item">
+                    <div class="label">里程碑间隔</div>
+                    <div class="value" id="p-milestone">-</div>
+                    <div class="desc">每N米加速一次</div>
+                </div>
+                <div class="param-item">
+                    <div class="label">最小障碍物间距</div>
+                    <div class="value" id="p-spacing">-</div>
+                    <div class="desc">确保跳跃可行性</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <div class="icon">🧪</div>
+                <h2>物理参数测试</h2>
+                <p>可视化调节和测试游戏的物理参数，包括速度曲线、跳跃轨迹等。实时查看参数调整对游戏的影响。</p>
+                <a href="test-physics.html" class="btn">进入测试</a>
+            </div>
+            
+            <div class="test-card">
+                <div class="icon">🦘</div>
+                <h2>跳跃距离测试</h2>
+                <p>专门测试跳跃机制，验证在不同速度下是否能够成功越过障碍物。支持自动测试和多种预设场景。</p>
+                <a href="test-jump.html" class="btn">进入测试</a>
+            </div>
+            
+            <div class="test-card">
+                <div class="icon">📊</div>
+                <h2>单元测试</h2>
+                <p>运行完整的单元测试套件，验证游戏逻辑、配置参数、碰撞检测等核心功能的正确性。</p>
+                <button class="btn btn-secondary" onclick="runUnitTests()">运行测试</button>
+            </div>
+            
+            <div class="test-card">
+                <div class="icon">🎮</div>
+                <h2>返回游戏</h2>
+                <p>返回主游戏页面，体验修复后的游戏效果。测试跳跃和速度系统是否正常工作。</p>
+                <a href="../index.html" class="btn">进入游戏</a>
+            </div>
+        </div>
+        
+        <div class="status-panel" id="status-panel">
+            <h3>✅ 系统状态正常</h3>
+            <p>所有测试文件已加载，游戏参数已优化。</p>
+            <div class="test-output" id="test-output" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script src="../js/utils.js"></script>
+    <script src="run-tests.js"></script>
+    <script>
+        // 加载并显示当前参数
+        function loadParams() {
+            document.getElementById('p-initial-speed').textContent = CONFIG.INITIAL_SPEED;
+            document.getElementById('p-max-speed').textContent = CONFIG.MAX_SPEED;
+            document.getElementById('p-gravity').textContent = CONFIG.GRAVITY;
+            document.getElementById('p-jump').textContent = CONFIG.JUMP_VELOCITY;
+            document.getElementById('p-milestone').textContent = CONFIG.SPEED_MILESTONE_INTERVAL + 'm';
+            document.getElementById('p-spacing').textContent = '650px';
+            
+            // 计算理论跳跃高度
+            const jumpHeight = (CONFIG.JUMP_VELOCITY * CONFIG.JUMP_VELOCITY) / (2 * CONFIG.GRAVITY);
+            
+            // 验证参数合理性
+            const statusPanel = document.getElementById('status-panel');
+            if (jumpHeight < 130) {
+                statusPanel.className = 'status-panel error';
+                statusPanel.querySelector('h3').textContent = '❌ 参数警告';
+                statusPanel.querySelector('p').textContent = `跳跃高度(${Math.round(jumpHeight)}px)可能不足以越过障碍物！`;
+            } else {
+                statusPanel.querySelector('p').textContent = `理论跳跃高度: ${Math.round(jumpHeight)}px，可以越过障碍物。`;
+            }
+        }
+        
+        // 运行单元测试
+        async function runUnitTests() {
+            const output = document.getElementById('test-output');
+            output.style.display = 'block';
+            output.innerHTML = '<div class="info">正在运行测试...</div>';
+            
+            // 捕获console输出
+            const originalLog = console.log;
+            const logs = [];
+            console.log = (...args) => {
+                logs.push(args.join(' '));
+                originalLog.apply(console, args);
+            };
+            
+            try {
+                await testRunner.runAllTests();
+                
+                // 显示结果
+                output.innerHTML = logs.map(log => {
+                    if (log.includes('✅') || log.includes('通过')) {
+                        return `<div class="success">${log}</div>`;
+                    } else if (log.includes('❌') || log.includes('失败')) {
+                        return `<div class="error">${log}</div>`;
+                    } else if (log.includes('测试')) {
+                        return `<div class="info">${log}</div>`;
+                    }
+                    return `<div>${log}</div>`;
+                }).join('');
+                
+            } catch (error) {
+                output.innerHTML = `<div class="error">测试运行出错: ${error.message}</div>`;
+            } finally {
+                console.log = originalLog;
+            }
+        }
+        
+        // 初始化
+        loadParams();
+    </script>
+</body>
+</html>

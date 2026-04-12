@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+    <!-- 基本信息 -->
+    <dontWrapJar>false</dontWrapJar>
+    <headerType>gui</headerType>
+    <jar>LegendsNeverDie.jar</jar>
+    <outfile>LegendsNeverDie.exe</outfile>
+    <errTitle>Legends Never Die - 错误</errTitle>
+    <cmdLine></cmdLine>
+    <chdir>.</chdir>
+    <priority>normal</priority>
+    <downloadUrl>https://adoptium.net/temurin/releases/</downloadUrl>
+    <supportUrl></supportUrl>
+    <stayAlive>false</stayAlive>
+    <restartOnCrash>false</restartOnCrash>
+    <manifest></manifest>
+    <icon>app.ico</icon>
+    
+    <!-- 变量设置 -->
+    <classPath>
+        <mainClass>Start</mainClass>
+        <cp>./static</cp>
+    </classPath>
+    
+    <!-- JRE 配置 -->
+    <jre>
+        <path></path>
+        <requiresJdk>false</requiresJdk>
+        <requires64Bit>false</requires64Bit>
+        <minVersion>1.8.0</minVersion>
+        <maxVersion></maxVersion>
+        <initialHeapSize>128</initialHeapSize>
+        <maxHeapSize>512</maxHeapSize>
+        <opts>
+            <opt>-Dfile.encoding=UTF-8</opt>
+            <opt>-Dsun.java2d.d3d=false</opt>
+        </opts>
+    </jre>
+    
+    <!-- 版本信息 -->
+    <versionInfo>
+        <fileVersion>1.0.0.0</fileVersion>
+        <txtFileVersion>1.0.0</txtFileVersion>
+        <fileDescription>Legends Never Die - 跑酷射击游戏</fileDescription>
+        <copyright>Copyright (C) 2024</copyright>
+        <productVersion>1.0.0.0</productVersion>
+        <txtProductVersion>1.0.0</txtProductVersion>
+        <productName>Legends Never Die</productName>
+        <companyName></companyName>
+        <internalName>LegendsNeverDie</internalName>
+        <originalFilename>LegendsNeverDie.exe</originalFilename>
+        <trademarks></trademarks>
+        <language>SIMPLIFIED_CHINESE</language>
+    </versionInfo>
+    
+    <!-- 单实例配置 -->
+    <singleInstance>
+        <mutexName>LegendsNeverDieMutex</mutexName>
+        <windowTitle>Legends Never Die</windowTitle>
+    </singleInstance>
+    
+    <!-- 消息配置 -->
+    <messages>
+        <startupErr>启动游戏时发生错误，请确保已安装 Java 8 或更高版本。</startupErr>
+        <jreNotFoundErr>未找到 Java 运行时环境。\n请访问 https://adoptium.net 下载并安装 Java 8 或更高版本。</jreNotFoundErr>
+        <jreVersionErr>检测到 Java 版本过低。\n需要 Java 8 或更高版本。</jreVersionErr>
+        <launcherErr>启动器发生错误。</launcherErr>
+    </messages>
+</launch4jConfig>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Legends Never Die</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-shell">
+    <div id="game-container">
+      <canvas id="game-canvas" width="1024" height="560" aria-label="Legends Never Die game canvas"></canvas>
+
+      <div id="mobile-controls" aria-label="Touch controls">
+        <button id="btn-jump" class="control-btn" type="button">跳跃</button>
+        <button id="btn-shoot" class="control-btn" type="button">射击</button>
+        <button id="btn-missile" class="control-btn" type="button">导弹</button>
+      </div>
+
+      <div id="start-screen" class="overlay-screen">
+        <div class="panel hero-panel">
+          <p class="eyebrow">Roguelike Runner Shooter</p>
+          <h1>Legends Never Die</h1>
+          <p class="lede">自动前进，跳跃规避，射击清场，升级时从三张卡里做一次构筑选择。</p>
+          <div class="info-grid">
+            <div>
+              <h2>键盘</h2>
+              <p><span>开始</span><strong>Enter / Space</strong></p>
+              <p><span>跳跃</span><strong>Space</strong></p>
+              <p><span>射击</span><strong>K</strong></p>
+              <p><span>导弹</span><strong>L</strong></p>
+              <p><span>暂停</span><strong>P / Esc</strong></p>
+              <p><span>选卡</span><strong>1 / 2 / 3</strong></p>
+            </div>
+            <div>
+              <h2>目标</h2>
+              <p>0-300m 只会出现障碍和普通敌人。</p>
+              <p>300m 后引入精英敌人。</p>
+              <p>1200m 后出现 Boss，之后按距离或时间继续刷新。</p>
+              <p>得分由距离、击杀、等级和 Boss 击杀共同决定。</p>
+            </div>
+          </div>
+          <button id="btn-start" class="primary-btn" type="button">开始游戏</button>
+        </div>
+      </div>
+
+      <div id="pause-screen" class="overlay-screen hidden">
+        <div class="panel compact-panel">
+          <p class="eyebrow">Paused</p>
+          <h2>游戏暂停</h2>
+          <p class="panel-copy">继续战斗，或者重新开一局。</p>
+          <div class="button-row">
+            <button id="btn-resume" class="primary-btn" type="button">继续</button>
+            <button id="btn-restart-pause" class="secondary-btn" type="button">重新开始</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="levelup-screen" class="overlay-screen hidden">
+        <div class="panel upgrade-panel">
+          <p class="eyebrow">Level Up</p>
+          <h2>选择 1 张升级卡</h2>
+          <p id="levelup-copy" class="panel-copy">按 1 / 2 / 3 或直接点击卡片。</p>
+          <div id="upgrade-cards" class="upgrade-cards" role="list"></div>
+        </div>
+      </div>
+
+      <div id="gameover-screen" class="overlay-screen hidden">
+        <div class="panel compact-panel">
+          <p class="eyebrow">Run Complete</p>
+          <h2>本局结束</h2>
+          <div class="summary-stack">
+            <p id="final-score"></p>
+            <p id="final-distance"></p>
+            <p id="final-kills"></p>
+            <p id="final-boss-kills"></p>
+            <p id="final-level"></p>
+            <p id="final-build"></p>
+          </div>
+          <button id="btn-restart" class="primary-btn" type="button">再来一局</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/bullet.js"></script>
+  <script src="js/enemy.js"></script>
+  <script src="js/hero.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

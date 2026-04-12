@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳跃距离测试工具 - 跑酷游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        canvas {
+            background: #000;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .control-group .value {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, #666, #444);
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-card.success {
+            background: rgba(0, 255, 100, 0.1);
+            border-color: rgba(0, 255, 100, 0.3);
+        }
+        
+        .stat-card.fail {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.3);
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        
+        .stat-card.success .value {
+            color: #00ff64;
+        }
+        
+        .stat-card.fail .value {
+            color: #ff4444;
+        }
+        
+        .test-scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .scenario-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #666;
+        }
+        
+        .scenario-card h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .scenario-card p {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .scenario-card button {
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+        
+        .result-display {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+        }
+        
+        .result-display .success {
+            color: #00ff64;
+        }
+        
+        .result-display .fail {
+            color: #ff4444;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .instructions {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            color: #ccc;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦘 跳跃距离测试工具</h1>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ul>
+                <li>调整下方参数来测试不同的跳跃条件</li>
+                <li>点击"跳跃"按钮或按空格键进行跳跃</li>
+                <li>观察跳跃轨迹和落点位置</li>
+                <li>测试不同速度下的跳跃距离</li>
+            </ul>
+        </div>
+        
+        <div class="panel">
+            <h2>🎮 测试画布</h2>
+            <canvas id="test-canvas" width="1000" height="400"></canvas>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00d4ff;"></div>
+                    <span>Hero (主角)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #666;"></div>
+                    <span>障碍物/陷阱</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffd700;"></div>
+                    <span>跳跃轨迹</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00ff64;"></div>
+                    <span>安全落点</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff4444;"></div>
+                    <span>危险区域</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>⚙️ 参数设置</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>游戏速度: <span class="value" id="val-speed">3</span></label>
+                    <input type="range" id="speed" min="1" max="15" step="0.5" value="3">
+                </div>
+                <div class="control-group">
+                    <label>跳跃力度: <span class="value" id="val-jump">-12</span></label>
+                    <input type="range" id="jump-power" min="-20" max="-8" step="0.5" value="-12">
+                </div>
+                <div class="control-group">
+                    <label>重力: <span class="value" id="val-gravity">0.4</span></label>
+                    <input type="range" id="gravity" min="0.2" max="1" step="0.05" value="0.4">
+                </div>
+                <div class="control-group">
+                    <label>障碍物间距: <span class="value" id="val-spacing">400</span>像素</label>
+                    <input type="range" id="spacing" min="200" max="800" step="50" value="400">
+                </div>
+            </div>
+            
+            <div class="controls" style="margin-top: 20px;">
+                <button onclick="jump()">🦘 跳跃</button>
+                <button onclick="autoTest()">🔄 自动测试</button>
+                <button onclick="resetTest()" class="secondary">↺ 重置</button>
+                <button onclick="placeObstacle()">🚧 放置障碍</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>📊 测试结果</h2>
+            <div class="stats-grid">
+                <div class="stat-card" id="stat-distance">
+                    <div class="label">跳跃距离</div>
+                    <div class="value" id="jump-distance">0</div>
+                </div>
+                <div class="stat-card" id="stat-height">
+                    <div class="label">最大高度</div>
+                    <div class="value" id="max-height">0</div>
+                </div>
+                <div class="stat-card" id="stat-time">
+                    <div class="label">跳跃时间</div>
+                    <div class="value" id="jump-time">0</div>
+                </div>
+                <div class="stat-card" id="stat-result">
+                    <div class="label">测试结果</div>
+                    <div class="value" id="test-result">-</div>
+                </div>
+            </div>
+            
+            <div class="result-display" id="test-log">
+                <div style="color: #888;">测试日志将显示在这里...</div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>🧪 预设测试场景</h2>
+            <div class="test-scenarios">
+                <div class="scenario-card">
+                    <h3>场景1: 新手起步</h3>
+                    <p>速度: 3 | 障碍物间距: 500px</p>
+                    <p>适合新手适应游戏操作</p>
+                    <button onclick="loadScenario(3, 500)">加载场景</button>
+                </div>
+                <div class="scenario-card">
+                    <h3>场景2: 正常游戏</h3>
+                    <p>速度: 6 | 障碍物间距: 450px</p>
+                    <p>标准游戏难度</p>
+                    <button onclick="loadScenario(6, 450)">加载场景</button>
+                </div>
+                <div class="scenario-card">
+                    <h3>场景3: 高速挑战</h3>
+                    <p>速度: 10 | 障碍物间距: 400px</p>
+                    <p>高难度挑战模式</p>
+                    <button onclick="loadScenario(10, 400)">加载场景</button>
+                </div>
+                <div class="scenario-card">
+                    <h3>场景4: 极限测试</h3>
+                    <p>速度: 12 | 障碍物间距: 350px</p>
+                    <p>测试最大速度下的跳跃</p>
+                    <button onclick="loadScenario(12, 350)">加载场景</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 获取画布
+        const canvas = document.getElementById('test-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 游戏参数
+        let params = {
+            speed: 3,
+            jumpPower: -12,
+            gravity: 0.4,
+            spacing: 400
+        };
+        
+        // 游戏状态
+        let hero = {
+            x: 100,
+            y: 320,
+            baseY: 320,
+            width: 40,
+            height: 80,
+            jumping: false,
+            velocity: 0,
+            trail: []
+        };
+        
+        let obstacles = [];
+        let testResults = [];
+        let animationId = null;
+        
+        // 绑定控件
+        document.getElementById('speed').addEventListener('input', (e) => {
+            params.speed = parseFloat(e.target.value);
+            document.getElementById('val-speed').textContent = params.speed;
+            draw();
+        });
+        
+        document.getElementById('jump-power').addEventListener('input', (e) => {
+            params.jumpPower = parseFloat(e.target.value);
+            document.getElementById('val-jump').textContent = params.jumpPower;
+        });
+        
+        document.getElementById('gravity').addEventListener('input', (e) => {
+            params.gravity = parseFloat(e.target.value);
+            document.getElementById('val-gravity').textContent = params.gravity.toFixed(2);
+        });
+        
+        document.getElementById('spacing').addEventListener('input', (e) => {
+            params.spacing = parseInt(e.target.value);
+            document.getElementById('val-spacing').textContent = params.spacing;
+            generateObstacles();
+            draw();
+        });
+        
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+        
+        // 生成障碍物
+        function generateObstacles() {
+            obstacles = [];
+            for (let x = 400; x < canvas.width; x += params.spacing) {
+                obstacles.push({
+                    x: x,
+                    y: 330,
+                    width: 80,
+                    height: 60
+                });
+            }
+        }
+        
+        // 绘制场景
+        function draw() {
+            // 清空
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 网格
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // 地面
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, 400, canvas.width, 100);
+            
+            // 绘制跳跃轨迹
+            if (hero.trail.length > 1) {
+                ctx.beginPath();
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 3;
+                ctx.moveTo(hero.trail[0].x, hero.trail[0].y);
+                for (let i = 1; i < hero.trail.length; i++) {
+                    ctx.lineTo(hero.trail[i].x, hero.trail[i].y);
+                }
+                ctx.stroke();
+                
+                // 标记落点
+                const landing = hero.trail[hero.trail.length - 1];
+                ctx.fillStyle = '#00ff64';
+                ctx.beginPath();
+                ctx.arc(landing.x, landing.y + hero.height, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 绘制障碍物
+            obstacles.forEach(obs => {
+                // 障碍物主体
+                ctx.fillStyle = '#666';
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                
+                // 危险标记
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(obs.x + 5, obs.y + 10, obs.width - 10, 5);
+                ctx.fillRect(obs.x + 5, obs.y + 25, obs.width - 10, 5);
+                ctx.fillRect(obs.x + 5, obs.y + 40, obs.width - 10, 5);
+                
+                // 标签
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Arial';
+                ctx.fillText(`x:${obs.x}`, obs.x, obs.y - 5);
+            });
+            
+            // 绘制Hero
+            ctx.fillStyle = hero.jumping ? '#ffd700' : '#00d4ff';
+            ctx.fillRect(hero.x, hero.y, hero.width, hero.height);
+            
+            // Hero 标签
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('HERO', hero.x, hero.y - 5);
+            
+            // 速度指示
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = '12px Arial';
+            ctx.fillText(`速度: ${params.speed}`, hero.x, hero.y + hero.height + 15);
+            
+            // 安全/危险区域提示
+            obstacles.forEach(obs => {
+                const heroRight = hero.x + hero.width;
+                const obsLeft = obs.x;
+                const obsRight = obs.x + obs.width;
+                
+                if (heroRight > obsLeft - 100 && heroRight < obsRight + 50) {
+                    // 在障碍物附近，显示提示
+                    if (hero.jumping && hero.y < obs.y - 20) {
+                        ctx.fillStyle = 'rgba(0, 255, 100, 0.3)';
+                        ctx.fillRect(obs.x, obs.y - 100, obs.width, 100);
+                        ctx.fillStyle = '#00ff64';
+                        ctx.fillText('✓ 可越过', obs.x, obs.y - 110);
+                    } else if (!hero.jumping && heroRight > obsLeft - 50) {
+                        ctx.fillStyle = 'rgba(255, 68, 68, 0.3)';
+                        ctx.fillRect(obs.x, obs.y - 100, obs.width, 100);
+                        ctx.fillStyle = '#ff4444';
+                        ctx.fillText('✗ 危险!', obs.x, obs.y - 110);
+                    }
+                }
+            });
+        }
+        
+        // 跳跃
+        function jump() {
+            if (hero.jumping) return;
+            
+            hero.jumping = true;
+            hero.velocity = params.jumpPower;
+            hero.trail = [{x: hero.x, y: hero.y}];
+            
+            const startX = hero.x;
+            const startTime = Date.now();
+            let maxHeight = hero.y;
+            
+            function update() {
+                if (!hero.jumping) return;
+                
+                // 更新位置
+                hero.y += hero.velocity;
+                hero.velocity += params.gravity;
+                
+                // 记录轨迹
+                hero.trail.push({x: hero.x, y: hero.y});
+                
+                // 记录最大高度
+                if (hero.y < maxHeight) {
+                    maxHeight = hero.y;
+                }
+                
+                // 落地检测
+                if (hero.y >= hero.baseY) {
+                    hero.y = hero.baseY;
+                    hero.jumping = false;
+                    hero.velocity = 0;
+                    
+                    // 计算结果
+                    const jumpDistance = hero.x - startX;
+                    const jumpTime = (Date.now() - startTime) / 1000;
+                    const jumpHeight = hero.baseY - maxHeight;
+                    
+                    // 更新显示
+                    document.getElementById('jump-distance').textContent = Math.round(jumpDistance);
+                    document.getElementById('max-height').textContent = Math.round(jumpHeight);
+                    document.getElementById('jump-time').textContent = jumpTime.toFixed(2) + 's';
+                    
+                    // 检查结果
+                    checkResult(jumpDistance, jumpHeight);
+                    
+                    return;
+                }
+                
+                draw();
+                animationId = requestAnimationFrame(update);
+            }
+            
+            update();
+        }
+        
+        // 检查结果
+        function checkResult(distance, height) {
+            const resultEl = document.getElementById('test-result');
+            const statResult = document.getElementById('stat-result');
+            const log = document.getElementById('test-log');
+            
+            // 检查是否能越过障碍物
+            let canPass = true;
+            let passedObstacles = 0;
+            
+            obstacles.forEach(obs => {
+                const heroRight = hero.x + hero.width;
+                if (heroRight > obs.x + obs.width && height > 80) {
+                    passedObstacles++;
+                } else if (hero.x < obs.x + obs.width && hero.x + hero.width > obs.x) {
+                    canPass = false;
+                }
+            });
+            
+            if (canPass && height > 80) {
+                resultEl.textContent = '✓ 通过';
+                resultEl.style.color = '#00ff64';
+                statResult.className = 'stat-card success';
+            } else {
+                resultEl.textContent = '✗ 失败';
+                resultEl.style.color = '#ff4444';
+                statResult.className = 'stat-card fail';
+            }
+            
+            // 添加日志
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `
+                <span style="color: #888;">[${new Date().toLocaleTimeString()}]</span> 
+                速度: ${params.speed} | 距离: ${Math.round(distance)}px | 高度: ${Math.round(height)}px | 
+                <span class="${canPass && height > 80 ? 'success' : 'fail'}">
+                    ${canPass && height > 80 ? '通过' : '失败'}
+                </span>
+            `;
+            log.insertBefore(logEntry, log.firstChild);
+            
+            // 保持日志数量
+            while (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+        
+        // 自动测试
+        function autoTest() {
+            resetTest();
+            
+            const speeds = [3, 5, 7, 9, 11, 12];
+            let currentTest = 0;
+            
+            function runNextTest() {
+                if (currentTest >= speeds.length) {
+                    logResult('自动测试完成！');
+                    return;
+                }
+                
+                params.speed = speeds[currentTest];
+                document.getElementById('speed').value = params.speed;
+                document.getElementById('val-speed').textContent = params.speed;
+                
+                logResult(`测试速度: ${params.speed}`);
+                
+                setTimeout(() => {
+                    jump();
+                    currentTest++;
+                    setTimeout(runNextTest, 1500);
+                }, 500);
+            }
+            
+            runNextTest();
+        }
+        
+        // 记录结果
+        function logResult(message) {
+            const log = document.getElementById('test-log');
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span style="color: #ffd700;">[系统]</span> ${message}`;
+            log.insertBefore(entry, log.firstChild);
+        }
+        
+        // 重置测试
+        function resetTest() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            hero.y = hero.baseY;
+            hero.jumping = false;
+            hero.velocity = 0;
+            hero.trail = [];
+            
+            document.getElementById('jump-distance').textContent = '0';
+            document.getElementById('max-height').textContent = '0';
+            document.getElementById('jump-time').textContent = '0';
+            document.getElementById('test-result').textContent = '-';
+            document.getElementById('test-result').style.color = '#00d4ff';
+            document.getElementById('stat-result').className = 'stat-card';
+            
+            draw();
+        }
+        
+        // 放置障碍物
+        function placeObstacle() {
+            const x = hero.x + 300 + Math.random() * 200;
+            obstacles.push({
+                x: x,
+                y: 330,
+                width: 80,
+                height: 60
+            });
+            
+            // 清理太远的障碍物
+            obstacles = obstacles.filter(obs => obs.x > -100);
+            
+            draw();
+        }
+        
+        // 加载预设场景
+        function loadScenario(speed, spacing) {
+            params.speed = speed;
+            params.spacing = spacing;
+            
+            document.getElementById('speed').value = speed;
+            document.getElementById('val-speed').textContent = speed;
+            document.getElementById('spacing').value = spacing;
+            document.getElementById('val-spacing').textContent = spacing;
+            
+            resetTest();
+            generateObstacles();
+            draw();
+            
+            logResult(`加载场景: 速度=${speed}, 间距=${spacing}px`);
+        }
+        
+        // 初始化
+        generateObstacles();
+        draw();
+    </script>
+</body>
+</html>
