@@ -13,7 +13,7 @@
   --epic: #ff8df1;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
   --radius: 28px;
-  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;        
 }
 
 * {
@@ -24,10 +24,56 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(255, 181, 107, 0.16), transparent 32%),
+    radial-gradient(circle at top, rgba(255, 181, 107, 0.16), transparent 32%), 
     radial-gradient(circle at 18% 20%, rgba(86, 182, 255, 0.18), transparent 28%),
     linear-gradient(160deg, var(--bg-top), var(--bg-mid) 46%, var(--bg-accent));
   color: var(--copy);
+}
+
+.warning-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-mid));
+  z-index: 1000;
+}
+
+.warning-screen.hidden {
+  display: none;
+}
+
+.warning-panel {
+  text-align: center;
+  padding: 40px;
+  max-width: 90%;
+}
+
+.warning-panel h2 {
+  font-size: 28px;
+  margin-bottom: 16px;
+  color: var(--primary-2);
+}
+
+.warning-panel p {
+  font-size: 18px;
+  margin-bottom: 24px;
+  color: var(--copy);
+  line-height: 1.6;
+}
+
+.warning-icon {
+  font-size: 80px;
+  animation: rotate-hint 2s ease-in-out infinite;
+}
+
+@keyframes rotate-hint {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-90deg); }
 }
 
 #game-shell {
@@ -40,6 +86,7 @@ body {
 #game-container {
   position: relative;
   width: min(100%, 1120px);
+  max-height: 90vh;
   aspect-ratio: 1024 / 560;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius);
@@ -52,6 +99,7 @@ body {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: contain;
 }
 
 .overlay-screen {
@@ -75,9 +123,11 @@ body {
   border-radius: 28px;
   border: 1px solid var(--panel-border);
   background:
-    linear-gradient(180deg, rgba(18, 26, 40, 0.95), rgba(8, 12, 24, 0.95)),
+    linear-gradient(180deg, rgba(18, 26, 40, 0.95), rgba(8, 12, 24, 0.95)),     
     var(--panel);
   box-shadow: var(--shadow);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .hero-panel {
@@ -128,7 +178,7 @@ h2 {
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px;
 }
 
@@ -162,6 +212,7 @@ h2 {
   display: flex;
   justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .primary-btn,
@@ -180,11 +231,13 @@ h2 {
   border-radius: 999px;
   font-size: 16px;
   font-weight: 700;
-  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;  
+  flex: 1;
+  min-width: 120px;
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));        
   box-shadow: 0 18px 40px rgba(255, 113, 71, 0.3);
 }
 
@@ -202,7 +255,7 @@ h2 {
 
 .upgrade-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
 }
 
@@ -215,119 +268,4 @@ h2 {
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
-.upgrade-card[data-rarity="rare"] {
-  border-color: rgba(86, 182, 255, 0.45);
-  background: linear-gradient(180deg, rgba(86, 182, 255, 0.12), rgba(255, 255, 255, 0.04));
-}
-
-.upgrade-card[data-rarity="epic"] {
-  border-color: rgba(255, 141, 241, 0.45);
-  background: linear-gradient(180deg, rgba(255, 141, 241, 0.14), rgba(255, 255, 255, 0.04));
-}
-
-.upgrade-card kbd {
-  display: inline-flex;
-  min-width: 26px;
-  height: 26px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  font: inherit;
-}
-
-.upgrade-card h3 {
-  margin: 0 0 8px;
-  font-size: 21px;
-}
-
-.upgrade-card p {
-  margin: 0;
-  line-height: 1.6;
-  color: var(--muted);
-}
-
-.upgrade-rarity {
-  margin-top: 14px;
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.upgrade-card[data-rarity="common"] .upgrade-rarity {
-  color: #d1e1ee;
-}
-
-.upgrade-card[data-rarity="rare"] .upgrade-rarity {
-  color: var(--rare);
-}
-
-.upgrade-card[data-rarity="epic"] .upgrade-rarity {
-  color: var(--epic);
-}
-
-.summary-stack {
-  display: grid;
-  gap: 6px;
-}
-
-#mobile-controls {
-  position: absolute;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  display: none;
-  gap: 12px;
-  z-index: 10;
-}
-
-.control-btn {
-  width: 78px;
-  height: 78px;
-  border-radius: 50%;
-  background: rgba(15, 27, 42, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-  font-weight: 700;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  #mobile-controls {
-    display: flex;
-  }
-}
-
-@media (max-width: 900px) {
-  .info-grid,
-  .upgrade-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  #game-shell {
-    padding: 0;
-  }
-
-  #game-container {
-    width: 100vw;
-    height: 100vh;
-    aspect-ratio: auto;
-    border-radius: 0;
-  }
-
-  .overlay-screen {
-    padding: 16px;
-  }
-
-  .panel {
-    width: 100%;
-    padding: 20px;
-    border-radius: 20px;
-  }
-
-  .button-row {
-    flex-direction: column;
-  }
-}
+.upgrade-card[data-rarity=
