@@ -4,9 +4,28 @@ package-lock.json
 *.class
 *.jar
 
+dist/
+bin/
+build/
+out/
+release/
+
 .DS_Store
 Thumbs.db
 
 *.log
 .env
 .env.*
+
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
