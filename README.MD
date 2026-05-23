@@ -74,8 +74,8 @@ python server.py 3000
 #### 方式3：Node.js服务器
 ```bash
 cd for_web
-npm install
-npm start
+yarn install
+yarn start
 ```
 
 #### 方式4：VS Code Live Server

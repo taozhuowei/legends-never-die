@@ -1,5 +1,4 @@
 node_modules/
-package-lock.json
 
 *.class
 *.jar
@@ -29,3 +28,11 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+
+# Yarn 4 (Berry) — node-modules linker, Corepack-managed (no committed release)
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/sdks
+!**/.yarn/versions
+**/.pnp.*
