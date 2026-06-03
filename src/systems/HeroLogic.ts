@@ -78,6 +78,30 @@ export function computeScore(meters: number, killScore: number, level: number): 
   return Math.floor(meters) * 10 + Math.round(killScore) + level * 100;
 }
 
+// 跳跃帧基准：原 JUMP_VELOCITY/GRAVITY 以 60FPS 单帧调校，故以 1000/60ms 为缩放基准。
+export const REFERENCE_FRAME_MS = 1000 / 60;
+
+// 跳跃积分（帧率无关）：半隐式欧拉（symplectic Euler），以 60FPS 为基准按 deltaMs 缩放。
+// frameScale=1（60FPS）时与原按帧积分逐帧一致（手感不变）；其余刷新率下滞空/弧高在小容差内收敛
+// （半隐式欧拉为步长相关的数值解，步长越小越贴近连续解，并非精确相等）。
+// velocityY 单位为「像素/帧(60fps)」，与 JUMP_VELOCITY、jumpVelocityModifier 一致；落地夹紧到 groundY。
+// 前提：调用方须钳制 deltaMs（GameScene 取 Math.min(delta,50)），使单帧位移远小于碰撞盒高度，避免隧穿。
+// 修复点：原 GameScene 按帧积分（velocityY += GRAVITY; y += velocityY），高刷屏下滞空过短而跳不过敌人。
+export function stepJump(
+  velocityY: number,
+  y: number,
+  deltaMs: number,
+  groundY: number
+): { velocityY: number; y: number; landed: boolean } {
+  const frameScale = deltaMs / REFERENCE_FRAME_MS;
+  const nextVelocityY = velocityY + CONFIG.GRAVITY * frameScale;
+  const nextY = y + nextVelocityY * frameScale;
+  if (nextY >= groundY) {
+    return { velocityY: 0, y: groundY, landed: true };
+  }
+  return { velocityY: nextVelocityY, y: nextY, landed: false };
+}
+
 // 升级的纯属性变更（按卡片 id）。飞行的精灵落位、构筑历史由 GameScene 另行处理。
 export function applyUpgradeStats(hero: HeroStats, id: string): void {
   switch (id) {

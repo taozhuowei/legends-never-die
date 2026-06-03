@@ -7,7 +7,10 @@ import {
   killScoreMultiplier,
   computeScore,
   applyUpgradeStats,
+  stepJump,
+  REFERENCE_FRAME_MS,
 } from "../src/systems/HeroLogic";
+import { CONFIG } from "../src/constants";
 
 // 直接测试真实实现（HeroLogic），不重写逻辑。
 
@@ -221,5 +224,57 @@ describe("applyUpgradeStats（真实升级应用 + 上限）", () => {
     const h = createDefaultHero();
     applyUpgradeStats(h, "explosive-warhead");
     expect(h.hasExplosiveMissiles).toBe(true);
+  });
+});
+
+// 模拟一次完整跳跃：以固定 deltaMs 步进至落地，返回滞空毫秒与最大上升像素。
+// 注：仅覆盖纯函数 stepJump；GameScene.updateHero 集成层（传参、落地清 isJumping）由 e2e
+// operations.spec.ts 的 TC-OP-001/TC-OP-002 覆盖。
+function simulateJump(deltaMs: number): { airtimeMs: number; apexRise: number } {
+  const groundY = CONFIG.GROUND_Y - 96;
+  let velocityY = CONFIG.JUMP_VELOCITY; // 起跳初速（modifier = 1）
+  let y = groundY;
+  let airtimeMs = 0;
+  let apexRise = 0;
+  for (let i = 0; i < 100000; i++) {
+    const step = stepJump(velocityY, y, deltaMs, groundY);
+    velocityY = step.velocityY;
+    y = step.y;
+    airtimeMs += deltaMs;
+    apexRise = Math.max(apexRise, groundY - y);
+    if (step.landed) break;
+  }
+  return { airtimeMs, apexRise };
+}
+
+describe("stepJump（跳跃帧率无关，回归 GameScene 原按帧积分缺陷）", () => {
+  it("60Hz 与 144Hz 滞空时间一致（原实现下 144Hz 仅约 0.42 倍，必失败）", () => {
+    const at60 = simulateJump(REFERENCE_FRAME_MS); // 16.67ms
+    const at144 = simulateJump(1000 / 144); // 6.94ms
+    expect(at144.airtimeMs).toBeGreaterThan(at60.airtimeMs * 0.85);
+    expect(at144.airtimeMs).toBeLessThan(at60.airtimeMs * 1.15);
+  });
+
+  it("60Hz 与 144Hz 弧高一致（容差 12%）", () => {
+    const at60 = simulateJump(REFERENCE_FRAME_MS);
+    const at144 = simulateJump(1000 / 144);
+    expect(at144.apexRise).toBeGreaterThan(at60.apexRise * 0.88);
+    expect(at144.apexRise).toBeLessThan(at60.apexRise * 1.12);
+  });
+
+  it("60Hz 单帧与原按帧积分逐帧一致（手感不变）", () => {
+    const groundY = CONFIG.GROUND_Y - 96;
+    const v0 = CONFIG.JUMP_VELOCITY;
+    const step = stepJump(v0, groundY, REFERENCE_FRAME_MS, groundY);
+    expect(step.velocityY).toBeCloseTo(v0 + CONFIG.GRAVITY, 6);
+    expect(step.y).toBeCloseTo(groundY + (v0 + CONFIG.GRAVITY), 6);
+  });
+
+  it("越过地面落地：夹紧到站位且 velocityY 归零", () => {
+    const groundY = CONFIG.GROUND_Y - 96;
+    const step = stepJump(20, groundY - 1, REFERENCE_FRAME_MS, groundY);
+    expect(step.landed).toBe(true);
+    expect(step.y).toBe(groundY);
+    expect(step.velocityY).toBe(0);
   });
 });

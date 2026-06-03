@@ -13,6 +13,7 @@ import {
   killScoreMultiplier,
   computeScore,
   applyUpgradeStats,
+  stepJump,
 } from "../systems/HeroLogic";
 
 interface ProjectileData {
@@ -437,13 +438,11 @@ export class GameScene extends Phaser.Scene {
         this.heroSprite.y = CONFIG.GROUND_Y - 96;
       }
     } else if (this.hero.isJumping) {
-      this.hero.velocityY += CONFIG.GRAVITY;
-      this.heroSprite.y += this.hero.velocityY;
-      if (this.heroSprite.y >= CONFIG.GROUND_Y - 96) {
-        this.heroSprite.y = CONFIG.GROUND_Y - 96;
-        this.hero.velocityY = 0;
-        this.hero.isJumping = false;
-      }
+      // 帧率无关积分：滞空时间与世界滚动同按 deltaMs 推进，高刷屏下才能跳过移动敌人。
+      const step = stepJump(this.hero.velocityY, this.heroSprite.y, deltaMs, CONFIG.GROUND_Y - 96);
+      this.hero.velocityY = step.velocityY;
+      this.heroSprite.y = step.y;
+      if (step.landed) this.hero.isJumping = false;
     }
 
     const textureKey = this.hero.isFlying ? "heroFly" : this.runFrameKeys[this.runFrameIndex];
