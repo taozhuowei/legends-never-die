@@ -12,6 +12,12 @@ release/
 .DS_Store
 Thumbs.db
 
+# Playwright e2e 产物
+test-results/
+playwright-report/
+/blob-report/
+.playwright/
+
 *.log
 .env
 .env.*

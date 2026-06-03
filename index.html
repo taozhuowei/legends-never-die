@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Legends Never Die</title>
+  <link rel="icon" href="data:,">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #081420;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #game-container {
+      width: min(100vw, 1120px);
+      max-height: 100vh;
+      aspect-ratio: 1024 / 560;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
